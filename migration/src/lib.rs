@@ -20,8 +20,12 @@ impl MigratorTrait for Migrator {
 #[async_trait::async_trait]
 impl MigratorTrait for LocalSeeds {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![Box::new( local::m20250905_164736_seed_draw_shedule::Migration)
-        ]
+        let mut migrations: Vec<Box<dyn MigrationTrait>> = vec![
+            Box::new(local::m20250905_164736_seed_draw_shedule::Migration),
+        ];
+
+        migrations.extend(Migrator::migrations());
+        migrations
     }
 }
 
