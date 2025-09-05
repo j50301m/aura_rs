@@ -9,6 +9,7 @@ repository = "https://github.com/j50301m/aura_rs"
 resolver = "3"
 members = [
     "common",
+    "migration",
     "services/gameapi",
     "services/gamecore",
     "services/drawing",
@@ -16,6 +17,7 @@ members = [
 
 [workspace.dependencies]
 actix-web = "4"
+sea-orm = "1.1.15"
 anyhow = "1"
 thiserror = "2"
 cfgloader_rs = "1.0.0"
