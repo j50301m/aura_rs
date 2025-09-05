@@ -10,10 +10,10 @@ async fn index(req: HttpRequest) -> &'static str {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = config::load_config();
-    println!("Loaded config: {:?}", config);
+    println!("Port: {}", config.port);
 
     HttpServer::new(|| App::new().service(web::resource("/").to(index)))
-        .bind("127.0.0.1:5566")?
+        .bind(format!("127.0.0.1:{}", config.port))?
         .run()
         .await
 }
