@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use sea_orm::{Database, Statement, ConnectOptions};
+use sea_orm::{ConnectOptions, Database, Statement};
 use sea_orm_migration::prelude::*;
 use url::Url;
 
@@ -37,7 +37,7 @@ async fn create_database_if_not_exists(
     if schema != "public" {
         connect_options.set_schema_search_path(schema);
     }
-    
+
     // Try to connect to database first
     match Database::connect(connect_options.clone()).await {
         Ok(connection) => {
@@ -94,7 +94,7 @@ async fn create_database_if_not_exists(
     println!("🔄 Connecting to database...");
     let db = Database::connect(connect_options).await?;
     println!("✅ Connected to database successfully!");
-    
+
     Ok(db)
 }
 
@@ -167,7 +167,11 @@ struct Cli {
     schema: String,
 
     /// Database URL (overrides environment variable)
-    #[arg(short = 'u', long = "url", default_value = "postgresql://postgres:1234qwer@localhost:35432/aura")]
+    #[arg(
+        short = 'u',
+        long = "url",
+        default_value = "postgresql://postgres:1234qwer@localhost:35432/aura"
+    )]
     db_url: String,
 }
 
@@ -214,7 +218,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Schema search path is already set via ConnectOptions
     println!("🔧 Using schema: {}", cli.schema);
-
 
     match cli.command {
         Commands::Up { steps } => {
