@@ -1,13 +1,15 @@
 # aura_rs Development Makefile
 
-.PHONY: help init ci
+.PHONY: help init ci docker-up docker-down
 
 # Default target
 help:
 	@echo "aura_rs Development Commands:"
 	@echo ""
-	@echo "  init          Initialize repository (install hooks and dev dependencies)"
+	@echo "  init          Initialize repository (install hooks, dev dependencies, start services)"
 	@echo "  ci            Run all CI checks (fmt, clippy, check, test, doc)"
+	@echo "  docker-up     Start Docker infrastructure services"
+	@echo "  docker-down   Stop Docker infrastructure services"
 	@echo "  help          Show this help message"
 
 # Initialize repository for development
@@ -20,18 +22,33 @@ init:
 	@echo "✅ Git hooks installed!"
 	@echo ""
 	@echo "📦 Installing development dependencies..."
-	@cargo install cargo-audit cargo-outdated cargo-expand
+	@cargo install cargo-audit cargo-outdated cargo-expand sea-orm-cli
 	@echo "✅ Development dependencies installed!"
+	@echo ""
+	@$(MAKE) docker-up
+	@echo "✅ Docker services started!"
 	@echo ""
 	@echo "📝 Available hooks:"
 	@echo "   • pre-push: Runs cargo fmt, clippy, check, and tests before pushing"
 	@echo ""
 	@echo "🔧 Usage tips:"
 	@echo "   • Run 'make ci' to run all quality checks"
+	@echo "   • Run 'make docker-up' to start infrastructure services"
+	@echo "   • Run 'make docker-down' to stop infrastructure services"
 	@echo "   • To skip tests during push: SKIP_TESTS=1 git push"
 	@echo "   • To bypass all hooks: git push --no-verify"
 	@echo ""
 	@echo "🎉 Repository initialization complete!"
+
+# Start Docker infrastructure services
+docker-up:
+	@echo "🐳 Starting Docker infrastructure services..."
+	@cd local_infra && docker compose up -d
+
+# Stop Docker infrastructure services
+docker-down:
+	@echo "🛑 Stopping Docker infrastructure services..."
+	@cd local_infra && docker compose down
 
 # Run all CI checks
 ci:
@@ -58,3 +75,5 @@ ci:
 	@echo "✅ Documentation generated"
 	@echo ""
 	@echo "🎉 All CI checks passed!"
+
+

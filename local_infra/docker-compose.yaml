@@ -1,0 +1,75 @@
+name: aura_rs
+
+services:
+  nginx:
+    image: nginx:1.27.2
+    container_name: aura_rs_nginx
+    restart: always
+    ports:
+      - "30080:80"
+      - "30090:9090"
+      - "30095:9095"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - './nginx/html:/usr/share/nginx/html'
+      - './nginx/main/nginx/conf.d:/etc/nginx/conf.d'
+      - './nginx/main/nginx/images:/usr/share/nginx/images'
+    networks:
+      - aura_rs
+
+  postgres:
+    image: postgres:16.9-alpine3.21
+    ports:
+      - "35432:5432"
+    container_name: aura_rs_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234qwer
+    volumes:
+      - "./postgres/data:/var/lib/postgresql/data"
+    networks:
+      - aura_rs
+
+  redis:
+    image: redis:7.2.5
+    container_name: aura_rs_redis
+    ports:
+      - "30079:6379"
+    restart: always
+    networks:
+      - aura_rs
+
+  rabbitmq:
+    image:  heidiks/rabbitmq-delayed-message-exchange:4.0.2-management
+    restart: always
+    hostname: rabbitmq
+    ports:
+      - 35673:15672
+      - 35672:5672
+    container_name: aura_rs_rabbitmq
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq
+    networks:
+      - aura_rs
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.70.0
+    container_name: aura_rs_jaeger
+    restart: always
+    ports:
+      - "36686:16686"
+      - "34317:4317"
+      - "34318:4318"
+      # - "34250:14250"
+      # - "34268:14268"
+      # - "34269:14269"
+      # - "39411:9411"
+    networks:
+      - aura_rs
+
+networks:
+  aura_rs:
+    name: aura-rs-net
+    driver: bridge
