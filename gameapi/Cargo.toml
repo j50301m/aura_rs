@@ -1,16 +1,15 @@
 [package]
 name = "gameapi"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
 
 [dependencies]
 actix-web = {workspace = true}
 anyhow = {workspace = true}
 thiserror = {workspace = true}
+cfgloader_rs = { workspace = true }
 
 [[bin]]
 name = "gameapi"
-cfgloader = { path = "../cfgloader" }
-cfgloader_derive = { path = "../cfgloader_derive" }
-# cfgloader = {workspace = true}
-# cfgloader_derive = {workspace = true}

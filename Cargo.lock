@@ -327,18 +327,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
 
 [[package]]
-name = "cfgloader"
-version = "0.1.0"
+name = "cfgloader-core"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ef902b3f749ecbb61278dfd230c6d339675dbc92f1242cccc3724c0c92dd497"
 dependencies = [
- "cfgloader_derive",
  "dotenvy",
- "thiserror",
 ]
 
 [[package]]
-name = "cfgloader_derive"
-version = "0.1.0"
+name = "cfgloader_rs"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ff8d2320b089a9cc2f169286639913ec3e23b0363a2f1fab4a5187ec39aff49"
 dependencies = [
+ "cfgloader-core",
+ "cfgloader_rs_macros",
+]
+
+[[package]]
+name = "cfgloader_rs_macros"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcc98ae8866c93de9bcb126064779256a5c5263b7d26184281f3bc4dbcb257d4"
+dependencies = [
+ "cfgloader-core",
  "proc-macro2",
  "quote",
  "syn",
@@ -347,10 +360,6 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
-dependencies = [
- "cfgloader",
- "cfgloader_derive",
-]
 
 [[package]]
 name = "cookie"
@@ -449,6 +458,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
+name = "drawing"
+version = "0.1.0"
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -536,6 +549,7 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "anyhow",
+ "cfgloader_rs",
  "thiserror",
 ]
 

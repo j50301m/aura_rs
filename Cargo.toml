@@ -1,7 +1,22 @@
 [workspace]
-members = ["common","gameapi","gamecore"]
+members = [
+    "common",
+    "gameapi",
+    "gamecore",
+    "drawing",
+]
+
+
+
+[workspace.package]
+version = "0.1.0"
+authors = ["j50301m <j50301m@yahoo.com.tw>"]
+edition = "2024"
+repository = "https://github.com/j50301m/aura_rs"
+
 
 [workspace.dependencies]
 actix-web = "4"
 anyhow = "1"
 thiserror = "2"
+cfgloader_rs = "1.0.0"

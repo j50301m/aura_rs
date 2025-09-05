@@ -2,6 +2,8 @@
 use actix_web::{App, HttpRequest, HttpServer, web};
 
 
+mod config;
+
 async fn index(req: HttpRequest) -> &'static str {
     println!("Received request: {}", req.path());
     "Hello, World!"
@@ -9,6 +11,10 @@ async fn index(req: HttpRequest) -> &'static str {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let config = config::load_config();
+    println!("Loaded config: {:?}", config);
+
     HttpServer::new( || {
         App::new()
         .service(web::resource("/").to(index))
