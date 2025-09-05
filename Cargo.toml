@@ -6,11 +6,12 @@ repository = "https://github.com/j50301m/aura_rs"
 
 
 [workspace]
+resolver = "3"
 members = [
     "common",
-    "gameapi",
-    "gamecore",
-    "drawing",
+    "services/gameapi",
+    "services/gamecore",
+    "services/drawing",
 ]
 
 [workspace.dependencies]
