@@ -1,18 +1,18 @@
-# CFGLoader Development Makefile
+# aura_rs Development Makefile
 
-.PHONY: help init-repo ci
+.PHONY: help init ci
 
 # Default target
 help:
-	@echo "CFGLoader Development Commands:"
+	@echo "aura_rs Development Commands:"
 	@echo ""
-	@echo "  init-repo     Initialize repository (install hooks and dev dependencies)"
-	@echo "  ci           Run all CI checks (fmt, clippy, check, test, doc)"
-	@echo "  help         Show this help message"
+	@echo "  init          Initialize repository (install hooks and dev dependencies)"
+	@echo "  ci            Run all CI checks (fmt, clippy, check, test, doc)"
+	@echo "  help          Show this help message"
 
 # Initialize repository for development
 init:
-	@echo "🚀 Initializing cfgloader_rs repository for development..."
+	@echo "🚀 Initializing aura_rs repository for development..."
 	@echo ""
 	@echo "🔧 Setting up Git hooks..."
 	@chmod +x .githooks/pre-push

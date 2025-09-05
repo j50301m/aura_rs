@@ -1,6 +1,4 @@
-
 use actix_web::{App, HttpRequest, HttpServer, web};
-
 
 mod config;
 
@@ -11,22 +9,18 @@ async fn index(req: HttpRequest) -> &'static str {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     let config = config::load_config();
     println!("Loaded config: {:?}", config);
 
-    HttpServer::new( || {
-        App::new()
-        .service(web::resource("/").to(index))
-    })
-    .bind("127.0.0.1:5566")?
-    .run()
-    .await
+    HttpServer::new(|| App::new().service(web::resource("/").to(index)))
+        .bind("127.0.0.1:5566")?
+        .run()
+        .await
 }
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{body::to_bytes, dev::Service, http, test, Error};
+    use actix_web::{Error, body::to_bytes, dev::Service, http, test};
 
     use super::*;
 
