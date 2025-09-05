@@ -58,7 +58,7 @@ cargo run --bin migration -- up --steps 3
 # Rollback last migration
 cargo run --bin migration -- down
 
-# Rollback specific number of migrations  
+# Rollback specific number of migrations
 cargo run --bin migration -- down --steps 2
 
 # Check migration status
@@ -114,7 +114,7 @@ The CLI automatically detects if the target database doesn't exist and creates i
 
 ```bash
 # This will create 'myapp_db' if it doesn't exist
-cargo run --bin migration -- -u postgresql://postgres:1234qwer@localhost:35432/myapp_db up
+cargo run --bin migration -- -u postgresql://postgres:1234qwer@localhost:35432/aura up
 ```
 
 ### Schema Auto-Creation

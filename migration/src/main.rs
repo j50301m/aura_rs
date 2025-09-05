@@ -249,7 +249,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("🌱 Seeding default data for environment: {}", env);
             match env.as_str() {
                 "local" => {
-                    LocalSeeds::up(&db, None).await?;
+                    LocalSeeds::up(&db, Some(1)).await?;
                 }
                 "dev" => {
                     DevSeeds::up(&db, None).await?;
