@@ -1,7 +1,6 @@
-
-use sea_orm_migration::sea_orm::{entity::*, query::*};
-use sea_orm_migration::prelude::*;
 use common::entity::turbo_togel_draw_shedule;
+use sea_orm_migration::prelude::*;
+use sea_orm_migration::sea_orm::{entity::*, query::*};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
