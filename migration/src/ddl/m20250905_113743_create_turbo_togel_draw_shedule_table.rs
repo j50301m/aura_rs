@@ -22,13 +22,13 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(TurboTogelDrawShedule::Cron)
                             .string()
                             .not_null()
-                            .comment("cron expression ex: '0 0/5 * * * ?'")
+                            .comment("cron expression ex: '0 0/5 * * * ?'"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Location)
                             .string()
                             .not_null()
-                            .comment("format: Asia/Jakarta")
+                            .comment("format: Asia/Jakarta"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::FirstDraw)
@@ -40,25 +40,25 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(TurboTogelDrawShedule::Interval)
                             .small_integer()
                             .not_null()
-                            .comment("the interval in seconds between each draw")
+                            .comment("the interval in seconds between each draw"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Close)
                             .small_integer()
                             .not_null()
-                            .comment("the last N seconds before lottery draw, forbid betting")
+                            .comment("the last N seconds before lottery draw, forbid betting"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Min)
                             .small_integer()
                             .not_null()
-                            .comment("the min number for the game")
+                            .comment("the min number for the game"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Max)
                             .small_integer()
                             .not_null()
-                            .comment("the max number for the game")
+                            .comment("the max number for the game"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Count)
@@ -70,7 +70,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(TurboTogelDrawShedule::Repeatable)
                             .boolean()
                             .not_null()
-                            .comment("whether the numbers can be repeated, false: no, true: yes")
+                            .comment("whether the numbers can be repeated, false: no, true: yes"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Status)

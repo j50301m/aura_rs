@@ -12,8 +12,7 @@ pub struct ProdSeed;
 impl MigratorTrait for TableMigrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
-            Box::new(ddl::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration,
-            ),
+            Box::new(ddl::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration),
             Box::new(ddl::m20250906_063502_create_turbo_togel_draw_result_table::Migration),
         ]
     }

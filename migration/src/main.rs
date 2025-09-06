@@ -5,11 +5,11 @@ use sea_orm_migration::prelude::*;
 use url::Url;
 
 // Use the Migrator defined in lib.rs
-use migration::TableMigrator;
-use migration::LocalSeed;
 use migration::DevSeed;
-use migration::StgSeed;
+use migration::LocalSeed;
 use migration::ProdSeed;
+use migration::StgSeed;
+use migration::TableMigrator;
 
 #[derive(Parser)]
 #[command(name = "migration")]
@@ -55,7 +55,7 @@ enum Commands {
     Seed {
         #[arg(short, long, default_value = "local")]
         env: String,
-    }
+    },
 }
 
 #[async_std::main]
@@ -252,7 +252,7 @@ async fn execute_commands(
             println!("🔄 Resetting database (down all)...");
             TableMigrator::reset(db).await?;
         }
-        Commands::Seed { env} => {
+        Commands::Seed { env } => {
             println!("🌱 Seed the initial data...");
             execute_seed_commands(env, db).await?;
         }
@@ -286,7 +286,7 @@ async fn execute_seed_commands(
             return Err(format!("Unknown environment: {}", env).into());
         }
     }
-    
+
     println!("✅ Seeds completed successfully!");
     Ok(())
 }
