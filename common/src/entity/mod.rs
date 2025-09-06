@@ -2,4 +2,5 @@
 
 pub mod prelude;
 
+pub mod turbo_togel_draw_result;
 pub mod turbo_togel_draw_shedule;

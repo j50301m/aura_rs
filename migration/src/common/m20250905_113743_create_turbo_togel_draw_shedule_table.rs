@@ -70,7 +70,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(TurboTogelDrawShedule::Repeatable)
                             .boolean()
                             .not_null()
-                            .comment("whether the numbers can be repeated, 0: no, 1: yes")
+                            .comment("whether the numbers can be repeated, false: no, true: yes")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Status)

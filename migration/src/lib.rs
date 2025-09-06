@@ -3,10 +3,10 @@ mod common;
 mod local;
 
 pub struct Migrator;
-pub struct LocalSeeds;
-pub struct DevSeeds;
-pub struct StgSeeds;
-pub struct ProdSeeds;
+pub struct Local;
+pub struct Dev;
+pub struct Stg;
+pub struct Prod;
 
 #[async_trait::async_trait]
 impl MigratorTrait for Migrator {
@@ -20,34 +20,41 @@ impl MigratorTrait for Migrator {
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for LocalSeeds {
+impl MigratorTrait for Local {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        let mut migrations: Vec<Box<dyn MigrationTrait>> = vec![Box::new(
+        let mut migrations = Migrator::migrations();
+        let mut seeds: Vec<Box<dyn MigrationTrait>> = vec![Box::new(
             local::m20250905_164736_seed_draw_shedule::Migration,
         )];
 
-        migrations.extend(Migrator::migrations());
+        migrations.append(&mut seeds);
         migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for DevSeeds {
+impl MigratorTrait for Dev {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![]
+        let mut migrations = vec![];
+        migrations.extend(Local::migrations());
+        migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for StgSeeds {
+impl MigratorTrait for Stg {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![]
+        let mut migrations = vec![];
+        migrations.extend(Local::migrations());
+        migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for ProdSeeds {
+impl MigratorTrait for Prod {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![]
+        let mut migrations = vec![];
+        migrations.extend(Migrator::migrations());
+        migrations
     }
 }

@@ -6,7 +6,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "turbo_togel_draw_shedule")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub id: i32,
+    pub id: i64,
     pub cron: String,
     pub location: String,
     pub first_draw: String,
@@ -15,7 +15,7 @@ pub struct Model {
     pub min: i16,
     pub max: i16,
     pub count: i16,
-    pub repeatable: i16,
+    pub repeatable: bool,
     pub status: i16,
 }
 

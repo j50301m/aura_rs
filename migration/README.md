@@ -205,3 +205,8 @@ generate new migration
 ``` sh
 sea-orm-cli migrate generate -d migration/src/common  create_turbo_togel_draw_result_table
 ```
+
+generate entity
+``` sh
+sea-orm-cli generate entity -u postgresql://postgres:1234qwer@localhost:35432/aura -o ./common/src/entity
+```

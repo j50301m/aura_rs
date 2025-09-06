@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
             min: Set(0),
             max: Set(9),
             count: Set(4),
-            repeatable: Set(1),
+            repeatable: Set(true),
             status: Set(1),
         }
         .insert(&transaction)

@@ -4,11 +4,76 @@ use sea_orm_migration::prelude::*;
 use url::Url;
 
 // Use the Migrator defined in lib.rs
-use migration::DevSeeds;
-use migration::LocalSeeds;
 use migration::Migrator;
-use migration::ProdSeeds;
-use migration::StgSeeds;
+use migration::Local;
+use migration::Dev;
+use migration::Stg;
+use migration::Prod;
+
+#[derive(Parser)]
+#[command(name = "migration")]
+#[command(about = "Database migration tool")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+
+    /// Database schema (defaults to public)
+    #[arg(short = 's', long = "schema", default_value = "public")]
+    schema: String,
+
+    /// Database URL (overrides environment variable)
+    #[arg(
+        short = 'u',
+        long = "url",
+        default_value = "postgresql://postgres:1234qwer@localhost:35432/aura"
+    )]
+    db_url: String,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Run migrations up
+    Up {
+        /// Number of steps to migrate (default: all)
+        #[arg(short, long)]
+        steps: Option<u32>,
+    },
+    /// Run migrations down
+    Down {
+        /// Number of steps to rollback (default: 1)
+        #[arg(short, long, default_value = "1")]
+        steps: u32,
+    },
+    /// Get migration status
+    Status,
+    /// Refresh (down all, then up all)
+    Fresh,
+    /// Reset (down all)
+    Reset,
+    /// Run seeds for specific environment
+    Seeds {
+        #[arg(short, long, default_value = "local")]
+        env: String,
+    }
+}
+
+#[async_std::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+
+    println!("🐘 Database: {}", mask_password(&cli.db_url));
+    println!("📋 Schema: {}", cli.schema);
+
+    // Create database if it doesn't exist and get connection
+    let db = create_database_if_not_exists(&cli.db_url, &cli.schema).await?;
+
+    // Create schema if it doesn't exist
+    create_schema_if_not_exists(&cli.db_url, &cli.schema).await?;
+
+    execute_commands(&cli.command, &db).await?;
+
+    Ok(())
+}
 
 /// Parse database URL and extract database name
 fn extract_database_name(database_url: &str) -> Result<String, String> {
@@ -155,116 +220,69 @@ fn mask_password(url: &str) -> String {
     }
 }
 
-#[derive(Parser)]
-#[command(name = "migration")]
-#[command(about = "Database migration tool")]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
 
-    /// Database schema (defaults to public)
-    #[arg(short = 's', long = "schema", default_value = "public")]
-    schema: String,
-
-    /// Database URL (overrides environment variable)
-    #[arg(
-        short = 'u',
-        long = "url",
-        default_value = "postgresql://postgres:1234qwer@localhost:35432/aura"
-    )]
-    db_url: String,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Run migrations up
-    Up {
-        /// Number of steps to migrate (default: all)
-        #[arg(short, long)]
-        steps: Option<u32>,
-    },
-    /// Run migrations down
-    Down {
-        /// Number of steps to rollback (default: 1)
-        #[arg(short, long, default_value = "1")]
-        steps: u32,
-    },
-    /// Get migration status
-    Status,
-    /// Refresh (down all, then up all)
-    Fresh,
-    /// Reset (down all)
-    Reset,
-    /// Set the default data for given environment
-    Seed {
-        #[arg(short, long, default_value = "local")]
-        env: String,
-    },
-}
-
-#[async_std::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cli = Cli::parse();
-
-    println!("🐘 Database: {}", mask_password(&cli.db_url));
-    println!("📋 Schema: {}", cli.schema);
-    println!();
-
-    // Create database if it doesn't exist and get connection
-    let db = create_database_if_not_exists(&cli.db_url, &cli.schema).await?;
-
-    // Create schema if it doesn't exist
-    create_schema_if_not_exists(&cli.db_url, &cli.schema).await?;
-
-    // Schema search path is already set via ConnectOptions
-    println!("🔧 Using schema: {}", cli.schema);
-
-    match cli.command {
+// Execute migration commands based on user input
+async fn execute_commands(
+    command: &Commands,
+    db: &sea_orm::DatabaseConnection,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match command {
         Commands::Up { steps } => {
             if let Some(step_count) = steps {
                 println!("⬆️  Running {} migration(s) up...", step_count);
-                Migrator::up(&db, Some(step_count)).await?;
+                Migrator::up(db, Some(*step_count)).await?;
             } else {
                 println!("⬆️  Running all pending migrations up...");
-                Migrator::up(&db, None).await?;
+                Migrator::up(db, None).await?;
             }
         }
         Commands::Down { steps } => {
             println!("⬇️  Rolling back {} migration(s)...", steps);
-            Migrator::down(&db, Some(steps)).await?;
+            Migrator::down(db, Some(*steps)).await?;
         }
         Commands::Status => {
             println!("📊 Migration status...");
-            Migrator::status(&db).await?;
+            Migrator::status(db).await?;
         }
         Commands::Fresh => {
             println!("🧹 Fresh database (drop all tables + up all)...");
-            Migrator::fresh(&db).await?;
+            Migrator::fresh(db).await?;
         }
         Commands::Reset => {
             println!("🔄 Resetting database (down all)...");
-            Migrator::reset(&db).await?;
+            Migrator::reset(db).await?;
         }
-        Commands::Seed { env } => {
-            println!("🌱 Seeding default data for environment: {}", env);
-            match env.as_str() {
-                "local" => {
-                    LocalSeeds::up(&db, Some(1)).await?;
-                }
-                "dev" => {
-                    DevSeeds::up(&db, None).await?;
-                }
-                "stg" => {
-                    StgSeeds::up(&db, None).await?;
-                }
-                "prod" => {
-                    ProdSeeds::up(&db, None).await?;
-                }
-                _ => {
-                    println!("Unknown environment: {}. No data seeded.", env);
-                }
-            }
+        Commands::Seeds { env} => {
+            println!("🌱 Seed the initial data...");
+            execute_seed_commands(env, db).await?;
         }
     }
+    Ok(())
+}
+// Execute seed commands for the specified environment
+async fn execute_seed_commands(
+    env: &str,
+    db: &sea_orm::DatabaseConnection,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match env {
+        "dev" => {
+            println!("🌱 Executing dev seeds...");
+            Dev::up(db, None).await?;
+        }
+        "stg" => {
+            println!("🌱 Executing stg seeds...");
+            Stg::up(db, None).await?;
+        }
+        "prod" => {
+            println!("🌱 Executing prod seeds...");
+            Prod::up(db, None).await?;
+        }
+        _ => {
+            println!("🌱 Executing local seeds...");
+            Local::up(db, None).await?;
+        }
+    }
+
+    println!("✅ Seeds completed successfully!");
     Ok(())
 }
