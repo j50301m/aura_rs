@@ -4,11 +4,11 @@ use sea_orm_migration::prelude::*;
 use url::Url;
 
 // Use the Migrator defined in lib.rs
-use migration::Migrator;
-use migration::Local;
-use migration::Dev;
-use migration::Stg;
-use migration::Prod;
+use migration::TableMigrator;
+use migration::LocalSeed;
+use migration::DevSeed;
+use migration::StgSeed;
+use migration::ProdSeed;
 
 #[derive(Parser)]
 #[command(name = "migration")]
@@ -51,7 +51,7 @@ enum Commands {
     /// Reset (down all)
     Reset,
     /// Run seeds for specific environment
-    Seeds {
+    Seed {
         #[arg(short, long, default_value = "local")]
         env: String,
     }
@@ -230,29 +230,29 @@ async fn execute_commands(
         Commands::Up { steps } => {
             if let Some(step_count) = steps {
                 println!("⬆️  Running {} migration(s) up...", step_count);
-                Migrator::up(db, Some(*step_count)).await?;
+                TableMigrator::up(db, Some(*step_count)).await?;
             } else {
                 println!("⬆️  Running all pending migrations up...");
-                Migrator::up(db, None).await?;
+                TableMigrator::up(db, None).await?;
             }
         }
         Commands::Down { steps } => {
             println!("⬇️  Rolling back {} migration(s)...", steps);
-            Migrator::down(db, Some(*steps)).await?;
+            TableMigrator::down(db, Some(*steps)).await?;
         }
         Commands::Status => {
             println!("📊 Migration status...");
-            Migrator::status(db).await?;
+            TableMigrator::status(db).await?;
         }
         Commands::Fresh => {
             println!("🧹 Fresh database (drop all tables + up all)...");
-            Migrator::fresh(db).await?;
+            TableMigrator::fresh(db).await?;
         }
         Commands::Reset => {
             println!("🔄 Resetting database (down all)...");
-            Migrator::reset(db).await?;
+            TableMigrator::reset(db).await?;
         }
-        Commands::Seeds { env} => {
+        Commands::Seed { env} => {
             println!("🌱 Seed the initial data...");
             execute_seed_commands(env, db).await?;
         }
@@ -267,19 +267,19 @@ async fn execute_seed_commands(
     match env {
         "dev" => {
             println!("🌱 Executing dev seeds...");
-            Dev::up(db, None).await?;
+            DevSeed::up(db, None).await?;
         }
         "stg" => {
             println!("🌱 Executing stg seeds...");
-            Stg::up(db, None).await?;
+            StgSeed::up(db, None).await?;
         }
         "prod" => {
             println!("🌱 Executing prod seeds...");
-            Prod::up(db, None).await?;
+            ProdSeed::up(db, None).await?;
         }
         _ => {
             println!("🌱 Executing local seeds...");
-            Local::up(db, None).await?;
+            LocalSeed::up(db, None).await?;
         }
     }
 

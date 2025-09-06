@@ -1,60 +1,56 @@
 pub use sea_orm_migration::prelude::*;
-mod common;
-mod local;
+mod ddl;
+mod seed;
 
-pub struct Migrator;
-pub struct Local;
-pub struct Dev;
-pub struct Stg;
-pub struct Prod;
+pub struct TableMigrator;
+pub struct LocalSeed;
+pub struct DevSeed;
+pub struct StgSeed;
+pub struct ProdSeed;
 
 #[async_trait::async_trait]
-impl MigratorTrait for Migrator {
+impl MigratorTrait for TableMigrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
-            Box::new(common::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration,
+            Box::new(ddl::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration,
             ),
-            Box::new(common::m20250906_063502_create_turbo_togel_draw_result_table::Migration),
+            Box::new(ddl::m20250906_063502_create_turbo_togel_draw_result_table::Migration),
         ]
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for Local {
+impl MigratorTrait for LocalSeed {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        let mut migrations = Migrator::migrations();
-        let mut seeds: Vec<Box<dyn MigrationTrait>> = vec![Box::new(
-            local::m20250905_164736_seed_draw_shedule::Migration,
-        )];
-
-        migrations.append(&mut seeds);
+        let mut migrations = TableMigrator::migrations();
+        migrations.extend(seed::local_seed_migrations());
         migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for Dev {
+impl MigratorTrait for DevSeed {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         let mut migrations = vec![];
-        migrations.extend(Local::migrations());
+        migrations.extend(seed::dev_seed_migrations());
         migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for Stg {
+impl MigratorTrait for StgSeed {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         let mut migrations = vec![];
-        migrations.extend(Local::migrations());
+        migrations.extend(seed::stg_seed_migrations());
         migrations
     }
 }
 
 #[async_trait::async_trait]
-impl MigratorTrait for Prod {
+impl MigratorTrait for ProdSeed {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         let mut migrations = vec![];
-        migrations.extend(Migrator::migrations());
+        migrations.extend(seed::prod_seed_migrations());
         migrations
     }
 }
