@@ -14,60 +14,70 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Id)
-                            .integer()
+                            .big_unsigned()
                             .not_null()
                             .primary_key(),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Cron)
                             .string()
-                            .not_null(),
+                            .not_null()
+                            .comment("cron expression ex: '0 0/5 * * * ?'")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Location)
                             .string()
-                            .not_null(),
+                            .not_null()
+                            .comment("format: Asia/Jakarta")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::FirstDraw)
                             .string_len(8)
-                            .not_null(),
+                            .not_null()
+                            .comment("format: hh:MM:ss"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Interval)
                             .small_integer()
-                            .not_null(),
+                            .not_null()
+                            .comment("the interval in seconds between each draw")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Close)
                             .small_integer()
-                            .not_null(),
+                            .not_null()
+                            .comment("the last N seconds before lottery draw, forbid betting")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Min)
                             .small_integer()
-                            .not_null(),
+                            .not_null()
+                            .comment("the min number for the game")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Max)
                             .small_integer()
-                            .not_null(),
+                            .not_null()
+                            .comment("the max number for the game")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Count)
                             .small_integer()
-                            .not_null(),
+                            .not_null()
+                            .comment("the digit count for the game"),
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Repeatable)
-                            .small_integer()
-                            .not_null(),
+                            .boolean()
+                            .not_null()
+                            .comment("whether the numbers can be repeated, 0: no, 1: yes")
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Status)
                             .small_integer()
                             .not_null()
-                            .default(1),
+                            .default(1)
+                            .comment("0: inactive, 1: active"),
                     )
                     .to_owned(),
             )

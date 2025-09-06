@@ -198,3 +198,10 @@ migration/
 │   └── main.rs          # CLI implementation
 └── README.md
 ```
+
+## Sem orm cli
+
+generate new migration
+``` sh
+sea-orm-cli migrate generate -d migration/src/common  create_turbo_togel_draw_result_table
+```

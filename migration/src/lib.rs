@@ -11,9 +11,11 @@ pub struct ProdSeeds;
 #[async_trait::async_trait]
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![Box::new(
-            common::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration,
-        )]
+        vec![
+            Box::new(common::m20250905_113743_create_turbo_togel_draw_shedule_table::Migration,
+            ),
+            Box::new(common::m20250906_063502_create_turbo_togel_draw_result_table::Migration),
+        ]
     }
 }
 

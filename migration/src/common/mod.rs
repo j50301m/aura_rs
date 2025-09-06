@@ -1,1 +1,2 @@
 pub mod m20250905_113743_create_turbo_togel_draw_shedule_table;
+pub mod m20250906_063502_create_turbo_togel_draw_result_table;
