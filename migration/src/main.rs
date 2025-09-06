@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use sea_orm::TransactionTrait;
 use sea_orm::{ConnectOptions, Database, Statement};
 use sea_orm_migration::prelude::*;
 use url::Url;
@@ -220,8 +221,7 @@ fn mask_password(url: &str) -> String {
     }
 }
 
-
-// Execute migration commands based on user input
+/// Execute migration commands based on user input
 async fn execute_commands(
     command: &Commands,
     db: &sea_orm::DatabaseConnection,
@@ -259,30 +259,58 @@ async fn execute_commands(
     }
     Ok(())
 }
-// Execute seed commands for the specified environment
+
+/// Execute seed commands for the specified environment
 async fn execute_seed_commands(
     env: &str,
     db: &sea_orm::DatabaseConnection,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match env {
+        "local" => {
+            println!("🌱 Executing local seeds...");
+            execute_seeds_without_tracking::<LocalSeed>(db).await?;
+        }
         "dev" => {
             println!("🌱 Executing dev seeds...");
-            DevSeed::up(db, None).await?;
+            execute_seeds_without_tracking::<DevSeed>(db).await?;
         }
         "stg" => {
             println!("🌱 Executing stg seeds...");
-            StgSeed::up(db, None).await?;
+            execute_seeds_without_tracking::<StgSeed>(db).await?;
         }
         "prod" => {
             println!("🌱 Executing prod seeds...");
-            ProdSeed::up(db, None).await?;
+            execute_seeds_without_tracking::<ProdSeed>(db).await?;
         }
         _ => {
-            println!("🌱 Executing local seeds...");
-            LocalSeed::up(db, None).await?;
+            return Err(format!("Unknown environment: {}", env).into());
         }
     }
-
+    
     println!("✅ Seeds completed successfully!");
+    Ok(())
+}
+
+/// Execute all seeds using transaction without migration tracking
+async fn execute_seeds_without_tracking<S: MigratorTrait>(
+    db: &sea_orm::DatabaseConnection,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let migrations = S::migrations();
+
+    // Begin transaction
+    let txn = db.begin().await?;
+    let schema_manager = SchemaManager::new(&txn);
+
+    // Execute all seed migrations
+    for migration in migrations {
+        let migration_name = migration.name();
+        if migration_name.contains("seed") {
+            println!("🌱 Executing seed: {}", migration_name);
+            migration.up(&schema_manager).await?;
+            println!("✅ Completed seed: {}", migration_name);
+        }
+    }
+    // Commit transaction
+    txn.commit().await?;
     Ok(())
 }
