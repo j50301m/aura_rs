@@ -12,7 +12,7 @@ use std::collections::HashSet;
 ///
 /// # Returns
 /// A comma-separated string of drawn numbers
-pub fn draw_number(min: i16, max: i16, count: i32, repeatable: bool) -> Result<String> {
+pub(super) fn draw_number(min: i16, max: i16, count: i32, repeatable: bool) -> Result<String> {
     validate_params(min, max, count, repeatable)?;
 
     let numbers = if repeatable {

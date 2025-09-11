@@ -1,0 +1,140 @@
+use anyhow::Result;
+use chrono::{NaiveTime, TimeZone, Utc};
+use chrono_tz::Tz;
+use common::entity::{
+    prelude::{TurboTogelDrawResult, TurboTogelDrawShedule},
+    turbo_togel_draw_result,
+    turbo_togel_draw_shedule::Column,
+};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,
+    TransactionTrait,
+};
+use std::{str::FromStr, sync::Arc};
+
+use crate::turbo_corn::draw;
+
+// Perform the draw operation for a given schedule
+pub(super) async fn draw_turbo_togel(
+    db: Arc<sea_orm::DatabaseConnection>,
+    schedule: common::entity::turbo_togel_draw_shedule::Model,
+) -> Result<()> {
+    // Use transaction wrapper - automatically handles commit/rollback
+    let saved_record = db
+        .transaction::<_, turbo_togel_draw_result::Model, anyhow::Error>(|txn| {
+            Box::pin(async move {
+                // Calculate current period
+                let period = calculate_period(&schedule)?;
+
+                // Draw numbers
+                let numbers = draw::draw_number(
+                    schedule.min,
+                    schedule.max,
+                    schedule.count,
+                    schedule.repeatable,
+                )?;
+
+                // Persist results and get the saved record
+                let saved_record = save_draw_result(
+                    txn,
+                    schedule,
+                    period,
+                    numbers,
+                    chrono::Utc::now().naive_utc(),
+                )
+                .await?;
+
+                Ok(saved_record)
+            })
+        })
+        .await?;
+
+    tracing::info!("Successfully saved draw result: {:?}", saved_record);
+    Ok(())
+}
+
+// Calculate current period
+fn calculate_period(entity: &common::entity::turbo_togel_draw_shedule::Model) -> Result<String> {
+    // Parse timezone
+    let tz = chrono_tz::Tz::from_str(&entity.location)?;
+
+    // Parse first_draw time (format: "HH:MM:SS")
+    let first_draw_time = NaiveTime::parse_from_str(&entity.first_draw, "%H:%M:%S")?;
+
+    // Get current time in the specified timezone
+    let now_in_tz = Utc::now().with_timezone(&tz);
+    let today = now_in_tz.date_naive();
+
+    // Combine today's date with first_draw time to create timezone-aware DateTime
+    let first_draw_today = tz
+        .from_local_datetime(&today.and_time(first_draw_time))
+        .single()
+        .ok_or_else(|| anyhow::anyhow!("Unable to parse first_draw time to specified timezone"))?;
+
+    // Parse
+    let interval = entity.interval; // in seconds
+
+    let period = ((now_in_tz.timestamp() - first_draw_today.timestamp()) / interval as i64) + 1;
+    let period = format!("{}{:04}", today.format("%Y%m%d"), period);
+
+    Ok(period)
+}
+
+// Save draw results to database
+async fn save_draw_result<C: ConnectionTrait>(
+    db: &C,
+    schedule: common::entity::turbo_togel_draw_shedule::Model,
+    period: String,
+    numbers: String,
+    _draw_time: chrono::NaiveDateTime,
+) -> Result<turbo_togel_draw_result::Model> {
+    tracing::info!(
+        "Saving draw result to database - Schedule ID: {}, Period: {}, Result: {}",
+        schedule.id,
+        period,
+        numbers
+    );
+
+    // Use UTC time for consistency across all records
+    let current_time = chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap());
+
+    // First, check if record exists
+    let existing_record = TurboTogelDrawResult::find()
+        .filter(turbo_togel_draw_result::Column::GameId.eq(schedule.id))
+        .filter(turbo_togel_draw_result::Column::Period.eq(&period))
+        .one(db)
+        .await?;
+
+    if let Some(record) = existing_record {
+        // Record exists - do nothing, just return existing record
+        tracing::info!(
+            "Record already exists - doing nothing for GameID: {}, Period: {}",
+            schedule.id,
+            period
+        );
+        return Ok(record);
+    }
+
+    // Record doesn't exist - insert new one
+    tracing::info!(
+        "Inserting new record for GameID: {}, Period: {}",
+        schedule.id,
+        period
+    );
+
+    let new_result = turbo_togel_draw_result::ActiveModel {
+        game_id: Set(schedule.id),
+        period: Set(period.to_string()),
+        numbers: Set(numbers),
+        drawing_at: Set(Some(current_time)),
+        created_at: Set(Some(current_time)),
+        updated_at: Set(Some(current_time)),
+        remark: Set(None),
+        updated_by: Set(Some("system".to_string())),
+        is_broadcasted: Set(false),
+        ..Default::default()
+    };
+
+    let inserted_record = ActiveModelTrait::insert(new_result, db).await?;
+    Ok(inserted_record)
+}

@@ -1,7 +1,7 @@
 use common;
 
 mod config;
-mod scheduler;
+mod turbo_corn;
 
 #[tokio::main]
 async fn main() {
@@ -20,9 +20,5 @@ async fn main() {
         .expect("Failed to connect to the database");
 
     // Create and start scheduler
-    let scheduler = scheduler::Scheduler::new(db);
-
-    if let Err(e) = scheduler.start().await {
-        tracing::error!("Failed to start scheduler: {}", e);
-    }
+    let _ = turbo_corn::Scheduler::new(db).start().await;
 }
