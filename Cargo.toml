@@ -16,8 +16,15 @@ members = [
 ]
 
 [workspace.dependencies]
+common = {path ="common"}
 actix-web = "4"
 sea-orm = "1.1.15"
 anyhow = "1"
 thiserror = "2"
 cfgloader_rs = "1.0.0"
+tokio-cron-scheduler = "0.14.0"
+tokio = {version = "1", features = ["full"]}
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+rand = "0.9"
+tracing = "0.1"

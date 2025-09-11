@@ -10,11 +10,11 @@ pub struct Model {
     pub cron: String,
     pub location: String,
     pub first_draw: String,
-    pub interval: i16,
+    pub interval: i32,
     pub close: i16,
     pub min: i16,
     pub max: i16,
-    pub count: i16,
+    pub count: i32,
     pub repeatable: bool,
     pub status: i16,
 }

@@ -2,7 +2,6 @@ use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
-
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
@@ -38,7 +37,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Interval)
-                            .small_integer()
+                            .integer()
                             .not_null()
                             .comment("the interval in seconds between each draw"),
                     )
@@ -62,7 +61,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawShedule::Count)
-                            .small_integer()
+                            .integer()
                             .not_null()
                             .comment("the digit count for the game"),
                     )
@@ -85,6 +84,19 @@ impl MigrationTrait for Migration {
 
         // Add check constraint for status field using raw SQL
         let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_status_check CHECK (status IN (0, 1))";
+        manager.get_connection().execute_unprepared(sql).await?;
+
+        // Add check constraints for positive values
+        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_min_positive CHECK (min > 0)";
+        manager.get_connection().execute_unprepared(sql).await?;
+
+        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_max_positive CHECK (max > 0)";
+        manager.get_connection().execute_unprepared(sql).await?;
+
+        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_count_positive CHECK (count > 0)";
+        manager.get_connection().execute_unprepared(sql).await?;
+
+        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_max_gt_min CHECK (max > min)";
         manager.get_connection().execute_unprepared(sql).await?;
 
         Ok(())
