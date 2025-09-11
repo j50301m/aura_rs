@@ -65,11 +65,11 @@ fn numbers_to_string(numbers: &[i16]) -> String {
 
 /// Validate input parameters
 fn validate_params(min: i16, max: i16, count: i32, repeatable: bool) -> Result<()> {
-    if min <= 0 {
+    if min < 0 {
         return Err(anyhow!("min must be > 0"));
     }
 
-    if max <= 0 {
+    if max < 0 {
         return Err(anyhow!("max must be > 0"));
     }
 

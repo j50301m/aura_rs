@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
 
         turbo_togel_draw_shedule::ActiveModel {
             id: Set(1),
-            cron: Set("0,5,10,15,20,25,30,35,40,45,50,55 * * * ?".to_string()),
+            cron: Set("* */5 * * * *".to_string()),
             location: Set("Asia/Jakarta".to_string()),
             first_draw: Set("00:00:00".to_string()),
             interval: Set(300),
