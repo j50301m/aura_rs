@@ -97,7 +97,7 @@ impl DistributedLock {
 ///
 /// if let Some(guard) = cache.try_acquire_lock_guard(
 ///     lock_key,
-///     "some_value",
+///     "some_value".to_string(),
 ///     30, // TTL in seconds
 /// ).await? {
 ///     // Lock acquired successfully, do your work here
@@ -162,7 +162,7 @@ impl DistributedLockGuard {
     /// let guard = DistributedLockGuard::try_acquire(
     ///     client,
     ///     "lock:draw:game_1".to_string(),
-    ///     uuid::Uuid::new_v4().to_string(),
+    ///     "some_value".to_string(),
     ///     30,
     /// ).await?;
     /// # Ok(())
