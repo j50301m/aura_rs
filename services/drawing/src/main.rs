@@ -1,5 +1,3 @@
-use common;
-
 mod config;
 mod turbo_corn;
 

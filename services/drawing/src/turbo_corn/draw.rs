@@ -108,7 +108,7 @@ mod tests {
         // All numbers should be in range
         for num_str in numbers {
             let num: i64 = num_str.parse().unwrap();
-            assert!(num >= 1 && num <= 10);
+            assert!((1..=10).contains(&num));
         }
     }
 
@@ -122,7 +122,7 @@ mod tests {
         let mut unique_numbers = HashSet::new();
         for num_str in &numbers {
             let num: i64 = num_str.parse().unwrap();
-            assert!(num >= 1 && num <= 10);
+            assert!((1..=10).contains(&num));
             assert!(unique_numbers.insert(num)); // Should be unique
         }
     }

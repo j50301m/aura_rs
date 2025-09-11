@@ -3,15 +3,8 @@ mod job;
 
 use anyhow::Result;
 use chrono_tz::Tz;
-use common::entity::{
-    prelude::{TurboTogelDrawResult, TurboTogelDrawShedule},
-    turbo_togel_draw_result,
-    turbo_togel_draw_shedule::Column,
-};
-use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,
-    TransactionTrait,
-};
+use common::entity::{prelude::TurboTogelDrawShedule, turbo_togel_draw_shedule::Column};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::{str::FromStr, sync::Arc};
 use tokio_cron_scheduler::{Job, JobScheduler};
 
