@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
             first_draw: Set("00:00:00".to_string()),
             interval: Set(300),
             close: Set(30),
-            min: Set(1),  // Changed from 0 to 1 to satisfy min > 0 constraint
+            min: Set(0),
             max: Set(9),
             count: Set(4),
             repeatable: Set(true),
