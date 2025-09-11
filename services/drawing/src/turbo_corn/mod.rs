@@ -39,17 +39,15 @@ impl Scheduler {
             let db = self.db.clone();
             let schedule = Arc::new(schedule);
             let job = Job::new_async_tz(schedule.cron.clone(), timezone, move |_uuid, _l| {
-                Box::pin({
-                    let cache = cache.clone();
-                    let db = db.clone();
-                    let schedule = schedule.clone();
-                    async move {
-                        job::draw_turbo_togel(cache, db, schedule)
-                            .await
-                            .unwrap_or_else(|e| {
-                                tracing::error!("Draw job failed: {:?}", e);
-                            });
-                    }
+                let cache = cache.clone();
+                let db = db.clone();
+                let schedule = schedule.clone();
+                Box::pin(async {
+                    job::draw_turbo_togel(cache, db, schedule)
+                        .await
+                        .unwrap_or_else(|e| {
+                            tracing::error!("Draw job failed: {:?}", e);
+                        });
                 })
             })?;
 
