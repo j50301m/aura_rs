@@ -17,7 +17,7 @@ const LOCK_PREFIX: &str = "draw:turbo_togel";
 pub(super) async fn draw_turbo_togel(
     cache: Arc<cache::Cache>,
     db: Arc<sea_orm::DatabaseConnection>,
-    schedule: common::entity::turbo_togel_draw_shedule::Model,
+    schedule: Arc<common::entity::turbo_togel_draw_shedule::Model>,
 ) -> Result<()> {
     // Try to allocate distributed lock
     let lock_key = cache.generate_lock_key(LOCK_PREFIX, &schedule.id.to_string());
@@ -44,7 +44,7 @@ pub(super) async fn draw_turbo_togel(
                 // Persist results and get the saved record
                 let saved_record = save_draw_result(
                     txn,
-                    schedule,
+                    &schedule,
                     period,
                     numbers,
                     chrono::Utc::now().naive_utc(),
@@ -105,7 +105,7 @@ fn calculate_period(entity: &common::entity::turbo_togel_draw_shedule::Model) ->
 // Save draw results to database
 async fn save_draw_result<C: ConnectionTrait>(
     db: &C,
-    schedule: common::entity::turbo_togel_draw_shedule::Model,
+    schedule: &common::entity::turbo_togel_draw_shedule::Model,
     period: String,
     numbers: String,
     _draw_time: chrono::NaiveDateTime,

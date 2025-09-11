@@ -37,13 +37,14 @@ impl Scheduler {
             let timezone = Tz::from_str(&schedule.location)?;
             let cache = self.cache.clone();
             let db = self.db.clone();
+            let schedule = Arc::new(schedule);
             let job = Job::new_async_tz(schedule.cron.clone(), timezone, move |_uuid, _l| {
                 Box::pin({
-                    let db_clone = db.clone();
-                    let schedule_clone = schedule.clone();
-                    let cache_clone = cache.clone();
+                    let cache = cache.clone();
+                    let db = db.clone();
+                    let schedule = schedule.clone();
                     async move {
-                        job::draw_turbo_togel(cache_clone, db_clone, schedule_clone)
+                        job::draw_turbo_togel(cache, db, schedule)
                             .await
                             .unwrap_or_else(|e| {
                                 tracing::error!("Draw job failed: {:?}", e);
