@@ -133,29 +133,6 @@ cargo run --bin migration -- -u postgresql://user:pass@host:5432/mydb up
 
 ## Migration Structure
 
-### Current Tables
-
-**`turbo_togel_draw_shedule`** - Game schedule configuration
-- `id` (bigint, primary key) - Unique game identifier
-- `cron` (varchar) - Cron expression for scheduling
-- `location` (varchar) - Timezone location (e.g., Asia/Jakarta)
-- `first_draw` (varchar) - First draw time (HH:MM:SS format)
-- `interval` (smallint) - Seconds between draws
-- `close` (smallint) - Betting close time before draw
-- `min`/`max` (smallint) - Number range for the game
-- `count` (smallint) - Number of digits in result
-- `repeatable` (boolean) - Whether numbers can repeat
-- `status` (smallint) - Game status (0: inactive, 1: active)
-
-**`turbo_togel_draw_result`** - Game draw results
-- `game_id` (bigint) - References schedule game
-- `period` (bigint) - Draw period number
-- `numbers` (varchar) - Drawn numbers
-- `remark` (varchar) - Optional remark for manual draws
-- `created_at` / `drawing_at` / `updated_at` - Timestamps
-- `updated_by` (varchar) - User who updated
-- `is_broadcasted` (boolean) - Broadcast status
-
 ### Migration Architecture
 
 The migration system is organized into clear separation of concerns:
@@ -333,12 +310,12 @@ pub fn local_seed_migrations() -> Vec<Box<dyn MigrationTrait>> {
 
 ### Migration Execution Order
 
-1. **DDL Migrations** (via `TableMigrator`): 
+1. **DDL Migrations** (via `TableMigrator`):
    - Execute in timestamp order
    - Create table structures only
 
 2. **Seed Migrations** (via environment-specific migrators):
-   - Include base DDL migrations first  
+   - Include base DDL migrations first
    - Then add environment-specific seed data
    - Maintain proper dependencies
 
