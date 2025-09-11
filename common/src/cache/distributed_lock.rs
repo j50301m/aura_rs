@@ -94,11 +94,10 @@ impl DistributedLock {
 ///
 /// // Try to acquire a lock with automatic cleanup
 /// let lock_key = cache.generate_lock_key("draw", "turbo_togel_1");
-/// let lock_value = cache.generate_lock_value();
 ///
 /// if let Some(guard) = cache.try_acquire_lock_guard(
 ///     lock_key,
-///     lock_value,
+///     "some_value",
 ///     30, // TTL in seconds
 /// ).await? {
 ///     // Lock acquired successfully, do your work here

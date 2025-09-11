@@ -66,7 +66,7 @@ pub(super) async fn draw_turbo_togel(
                 chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap());
             saved_record.is_broadcasted = true;
             saved_record.updated_at = Some(current_time);
-            saved_record.into_active_model().update(&*db).await?;
+            saved_record.into_active_model().update(db).await?;
             Ok(())
         })
     })

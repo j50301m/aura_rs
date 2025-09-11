@@ -70,11 +70,10 @@ impl Cache {
     /// let cache = Cache::new("redis://localhost:6379").await?;
     ///
     /// let lock_key = cache.generate_lock_key("draw", "turbo_togel_1");
-    /// let lock_value = cache.generate_lock_value();
     ///
     /// if let Some(guard) = cache.try_acquire_lock_guard(
     ///     lock_key,
-    ///     lock_value,
+    ///     "some_value".to_string(),
     ///     30, // 30 seconds TTL
     /// ).await? {
     ///     // Critical section - only one process can execute this
