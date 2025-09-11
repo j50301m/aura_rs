@@ -3,19 +3,69 @@ use chrono::{NaiveTime, TimeZone, Utc};
 
 use common::entity::{prelude::TurboTogelDrawResult, turbo_togel_draw_result};
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,
-    TransactionTrait,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, IntoActiveModel,
+    QueryFilter, TransactionTrait,
 };
 use std::{str::FromStr, sync::Arc};
 
+use crate::turbo_corn::distributed_lock::{DistributedLock, DistributedLockGuard};
 use crate::turbo_corn::draw;
 
-// Perform the draw operation for a given schedule
-pub(super) async fn draw_turbo_togel(
+// Perform the draw operation for a given schedule with distributed lock
+pub(super) async fn draw_turbo_togel_with_lock(
+    db: Arc<sea_orm::DatabaseConnection>,
+    schedule: common::entity::turbo_togel_draw_shedule::Model,
+    redis_url: String,
+) -> Result<()> {
+    // Calculate period first (needed for lock key)
+    let period = calculate_period(&schedule)?;
+
+    // Create distributed lock
+    let lock = DistributedLock::new(&redis_url)?;
+    let lock_key = DistributedLock::generate_lock_key(schedule.id, &period);
+    let lock_value = DistributedLock::generate_lock_value();
+
+    // Store schedule ID for logging
+    let schedule_id = schedule.id;
+
+    // Try to acquire lock with 30 seconds TTL
+    let lock_guard = DistributedLockGuard::try_acquire(
+        lock, lock_key, lock_value, 30, // 30 seconds TTL
+    )
+    .await?;
+
+    if let Some(_guard) = lock_guard {
+        tracing::info!(
+            "Acquired lock for schedule {} period {} - proceeding with draw",
+            schedule_id,
+            period
+        );
+
+        // We got the lock, proceed with the draw
+        draw_turbo_togel(db, schedule).await?;
+
+        tracing::info!(
+            "Completed draw for schedule {} period {} - lock will be released automatically",
+            schedule_id,
+            period
+        );
+    } else {
+        tracing::info!(
+            "Failed to acquire lock for schedule {} period {} - skipping this execution (another pod is handling it)",
+            schedule_id,
+            period
+        );
+    }
+
+    Ok(())
+}
+
+// Original draw function (now private)
+async fn draw_turbo_togel(
     db: Arc<sea_orm::DatabaseConnection>,
     schedule: common::entity::turbo_togel_draw_shedule::Model,
 ) -> Result<()> {
-    let saved_record = db
+    let mut saved_record = db
         .transaction::<_, turbo_togel_draw_result::Model, anyhow::Error>(|txn| {
             Box::pin(async move {
                 // Calculate current period
@@ -44,7 +94,21 @@ pub(super) async fn draw_turbo_togel(
         })
         .await?;
 
-    tracing::info!("Successfully saved draw result: {:?}", saved_record);
+    // Publish to result to result
+
+    // Change  the `is_broadcasted` to true
+    db.transaction::<_, (), anyhow::Error>(|db| {
+        Box::pin(async move {
+            // Use UTC time for consistency across all records
+            let current_time =
+                chrono::Utc::now().with_timezone(&chrono::FixedOffset::east_opt(0).unwrap());
+            saved_record.is_broadcasted = true;
+            saved_record.updated_at = Some(current_time);
+            saved_record.into_active_model().update(&*db).await?;
+            Ok(())
+        })
+    })
+    .await?;
 
     Ok(())
 }

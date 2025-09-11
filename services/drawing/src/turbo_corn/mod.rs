@@ -1,3 +1,4 @@
+mod distributed_lock;
 mod draw;
 mod job;
 
@@ -10,17 +11,19 @@ use tokio_cron_scheduler::{Job, JobScheduler};
 
 pub struct Scheduler {
     db: Arc<sea_orm::DatabaseConnection>,
+    redis_url: String,
 }
 
 impl Scheduler {
-    pub fn new(db: sea_orm::DatabaseConnection) -> Self {
+    pub fn new(db: sea_orm::DatabaseConnection, redis_url: String) -> Self {
         let db = Arc::new(db);
 
-        Self { db }
+        Self { db, redis_url }
     }
 
     pub async fn start(&self) -> Result<()> {
         let db = self.db.clone();
+        let redis_url = self.redis_url.clone();
 
         // Find all active schedules
         let schedules = TurboTogelDrawShedule::find()
@@ -34,12 +37,20 @@ impl Scheduler {
         for schedule in schedules {
             let timezone = Tz::from_str(&schedule.location)?;
             let db = db.clone();
+            let redis_url = redis_url.clone();
             let job = Job::new_async_tz(schedule.cron.clone(), timezone, move |_uuid, _l| {
                 Box::pin({
                     let db_clone = db.clone();
                     let schedule_clone = schedule.clone();
+                    let redis_url_clone = redis_url.clone();
                     async move {
-                        if let Err(e) = job::draw_turbo_togel(db_clone, schedule_clone).await {
+                        if let Err(e) = job::draw_turbo_togel_with_lock(
+                            db_clone,
+                            schedule_clone,
+                            redis_url_clone,
+                        )
+                        .await
+                        {
                             tracing::error!("Draw job failed: {:?}", e);
                         }
                     }
