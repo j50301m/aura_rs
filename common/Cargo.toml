@@ -11,4 +11,3 @@ anyhow = {workspace = true}
 tokio = {workspace = true}
 tracing = {workspace = true}
 redis = {workspace = true}
-uuid = {workspace = true}

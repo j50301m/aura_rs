@@ -864,7 +864,6 @@ dependencies = [
  "sea-orm",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]

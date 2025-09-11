@@ -134,29 +134,4 @@ impl Cache {
     pub fn generate_lock_key(&self, prefix: &str, resource_id: &str) -> String {
         format!("lock:{}:{}", prefix, resource_id)
     }
-
-    /// Generate a unique lock value to identify this process/instance.
-    ///
-    /// Each lock acquisition should use a unique value to ensure that only
-    /// the process that acquired the lock can release it. This prevents
-    /// accidental releases by other processes.
-    ///
-    /// # Returns
-    ///
-    /// A UUID v4 string that uniquely identifies this lock acquisition.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use common::cache::Cache;
-    /// # async fn example() -> anyhow::Result<()> {
-    /// # let cache = Cache::new("redis://localhost:6379").await?;
-    /// let lock_value = cache.generate_lock_value();
-    /// // Result: something like "550e8400-e29b-41d4-a716-446655440000"
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub fn generate_lock_value(&self) -> String {
-        uuid::Uuid::new_v4().to_string()
-    }
 }

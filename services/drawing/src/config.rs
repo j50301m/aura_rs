@@ -5,6 +5,8 @@ use cfgloader_rs::FromEnv;
 #[derive(FromEnv)]
 pub struct Config {
     pub db: Db,
+    #[env("REDIS_URL", default = "redis://127.0.0.1:30079")]
+    pub redis_url: String,
 }
 
 #[derive(FromEnv)]
