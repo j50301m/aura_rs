@@ -57,6 +57,7 @@ pub(super) async fn draw_turbo_togel(
         .await?;
 
     // TODO: Publish to result to result
+    tracing::info!("//TODO: Publish rabbitmq");
 
     // Change  the `is_broadcasted` to true
     db.transaction::<_, (), anyhow::Error>(|db| {
