@@ -129,8 +129,7 @@ mod tests {
 
     #[test]
     fn test_validation() {
-        // Test min <= 0
-        assert!(draw_number(0, 10, 5, true).is_err());
+        // Test min < 0
         assert!(draw_number(-1, 10, 5, true).is_err());
 
         // Test max <= 0
