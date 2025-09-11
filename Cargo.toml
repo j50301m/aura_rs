@@ -18,7 +18,7 @@ members = [
 [workspace.dependencies]
 common = {path ="common"}
 actix-web = "4"
-sea-orm = "1.1.15"
+sea-orm = { version = "1.1.15", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
 anyhow = "1"
 thiserror = "2"
 cfgloader_rs = "1.0.0"
@@ -30,3 +30,4 @@ rand = "0.9"
 tracing = "0.1"
 serde_json = "1.0"
 redis = { version = "0.32", features = ["aio", "tokio-comp"] }
+tracing-subscriber = "0.3"

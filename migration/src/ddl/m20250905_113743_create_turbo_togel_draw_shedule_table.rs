@@ -87,7 +87,7 @@ impl MigrationTrait for Migration {
         manager.get_connection().execute_unprepared(sql).await?;
 
         // Add check constraints for positive values
-        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_min_positive CHECK (min > 0)";
+        let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_min_positive CHECK (min >= 0)";
         manager.get_connection().execute_unprepared(sql).await?;
 
         let sql = "ALTER TABLE turbo_togel_draw_shedule ADD CONSTRAINT turbo_togel_draw_shedule_max_positive CHECK (max > 0)";

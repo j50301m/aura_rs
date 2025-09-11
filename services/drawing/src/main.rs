@@ -7,6 +7,8 @@ mod turbo_corn;
 
 #[tokio::main]
 async fn main() {
+    common::tracing::init();
+
     let cfg = config::Config::new();
 
     let db = Arc::new(
@@ -30,5 +32,15 @@ async fn main() {
     );
 
     // Create and start scheduler
-    let _ = turbo_corn::Scheduler::new(db, cache).start().await;
+    let scheduler = turbo_corn::Scheduler::new(db, cache);
+    scheduler.start().await.expect("Failed to start scheduler");
+
+    tracing::info!("Drawing service started. Press Ctrl+C to stop.");
+
+    // Wait for shutdown signal
+    tokio::signal::ctrl_c()
+        .await
+        .expect("Failed to listen for shutdown signal");
+
+    tracing::info!("Shutdown signal received, exiting gracefully...");
 }

@@ -5,7 +5,7 @@ use cfgloader_rs::FromEnv;
 #[derive(FromEnv)]
 pub struct Config {
     pub db: Db,
-    #[env("REDIS_URL", default = "redis://127.0.0.1:30079")]
+    #[env("REDIS_URL", default = "redis://localhost:30079")]
     pub redis_url: String,
 }
 
@@ -31,6 +31,7 @@ pub struct Db {
 
 impl Config {
     pub fn new() -> Self {
-        Config::load(&path::PathBuf::from(".env")).expect("Failed to load config from env")
+        Config::load(&path::PathBuf::from("services/drawing/.env"))
+            .expect("Failed to load config from env")
     }
 }
