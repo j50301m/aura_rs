@@ -8,7 +8,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub game_id: i64,
     #[sea_orm(primary_key, auto_increment = false)]
-    pub period: i64,
+    pub period: String,
     pub numbers: String,
     pub remark: Option<String>,
     pub created_at: Option<DateTimeWithTimeZone>,

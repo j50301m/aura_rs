@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(TurboTogelDrawResult::Period)
-                            .big_unsigned()
+                            .string()
                             .not_null(),
                     )
                     .col(

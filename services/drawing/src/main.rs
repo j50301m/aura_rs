@@ -19,10 +19,10 @@ async fn main() {
         .await
         .expect("Failed to connect to the database");
 
-    // 建立並啟動 scheduler
+    // Create and start scheduler
     let scheduler = scheduler::Scheduler::new(db);
 
     if let Err(e) = scheduler.start().await {
-        eprintln!("調度器啟動失敗: {}", e);
+        tracing::error!("Failed to start scheduler: {}", e);
     }
 }

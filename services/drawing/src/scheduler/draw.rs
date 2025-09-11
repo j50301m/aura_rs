@@ -18,16 +18,14 @@ pub fn draw_number(min: i16, max: i16, count: i32, repeatable: bool) -> Result<S
     let numbers = if repeatable {
         draw_with_repeat(min, max, count)
     } else {
-        draw_no_repeat(min, max, count)?
+        draw_no_repeat(min, max, count)
     };
 
     Ok(numbers_to_string(&numbers))
 }
 
 /// Draw numbers without repetition
-fn draw_no_repeat(min: i16, max: i16, count: i32) -> Result<Vec<i16>> {
-    validate_params(min, max, count, false)?;
-
+fn draw_no_repeat(min: i16, max: i16, count: i32) -> Vec<i16> {
     let mut result = Vec::new();
     let mut used = HashSet::new();
     let mut rng = rand::rng();
@@ -40,7 +38,7 @@ fn draw_no_repeat(min: i16, max: i16, count: i32) -> Result<Vec<i16>> {
         }
     }
 
-    Ok(result)
+    result
 }
 
 /// Draw numbers with repetition allowed
