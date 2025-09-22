@@ -1,5 +1,5 @@
 use anyhow::Result;
-use redis::Client;
+use redis::aio::ConnectionManager;
 use tracing::{info, warn};
 
 /// Internal distributed lock operations using Redis.
@@ -17,21 +17,19 @@ impl DistributedLock {
     /// Try to acquire a distributed lock
     /// Returns true if lock was acquired, false otherwise
     pub async fn try_acquire_lock(
-        client: &Client,
+        mut conn: ConnectionManager,
         lock_key: &str,
         lock_value: &str,
         ttl_seconds: u64,
     ) -> Result<bool> {
-        let mut conn = client.get_multiplexed_async_connection().await?;
-
         // Use simple SET NX EX command
-        let result: Option<String> = redis::cmd("SET")
+        let result = redis::cmd("SET")
             .arg(lock_key)
             .arg(lock_value)
             .arg("NX") // Only set if not exists
             .arg("EX") // Set expiry
             .arg(ttl_seconds)
-            .query_async(&mut conn)
+            .query_async::<Option<String>>(&mut conn)
             .await?;
 
         let acquired = result.is_some();
@@ -46,9 +44,11 @@ impl DistributedLock {
     }
 
     /// Release a distributed lock (only if we own it)
-    pub async fn release_lock(client: &Client, lock_key: &str, lock_value: &str) -> Result<bool> {
-        let mut conn = client.get_multiplexed_async_connection().await?;
-
+    pub async fn release_lock(
+        conn: &mut ConnectionManager,
+        lock_key: &str,
+        lock_value: &str,
+    ) -> Result<bool> {
         // Lua script to atomically check and delete the lock
         // Only delete if the value matches (we own the lock)
         let lua_script = r#"
@@ -64,7 +64,7 @@ impl DistributedLock {
             .arg(1) // Number of keys
             .arg(lock_key) // KEYS[1]
             .arg(lock_value) // ARGV[1]
-            .query_async(&mut conn)
+            .query_async(&mut conn.clone())
             .await?;
 
         let released = result == 1;
@@ -125,7 +125,7 @@ impl DistributedLock {
 /// The lock is released in a background task when the guard is dropped, ensuring
 /// that the current task doesn't block on the release operation.
 pub struct DistributedLockGuard {
-    client: Client,
+    client: ConnectionManager,
     lock_key: String,
     lock_value: String,
 }
@@ -158,9 +158,9 @@ impl DistributedLockGuard {
     /// // This is typically called via Cache::try_acquire_lock_guard()
     /// // Don't call this directly unless you have a specific need
     ///
-    /// let client = (*cache.redis_client_arc()).clone();
+    /// let mut conn = cache.get_connection();
     /// let guard = DistributedLockGuard::try_acquire(
-    ///     client,
+    ///     conn,
     ///     "lock:draw:game_1".to_string(),
     ///     "some_value".to_string(),
     ///     30,
@@ -169,13 +169,14 @@ impl DistributedLockGuard {
     /// # }
     /// ```
     pub async fn try_acquire(
-        client: Client,
+        client: ConnectionManager,
         lock_key: String,
         lock_value: String,
         ttl_seconds: u64,
     ) -> Result<Option<Self>> {
         let acquired =
-            DistributedLock::try_acquire_lock(&client, &lock_key, &lock_value, ttl_seconds).await?;
+            DistributedLock::try_acquire_lock(client.clone(), &lock_key, &lock_value, ttl_seconds)
+                .await?;
 
         if acquired {
             Ok(Some(Self {
@@ -219,12 +220,12 @@ impl Drop for DistributedLockGuard {
     /// this cleanup fails, the lock will automatically expire.
     fn drop(&mut self) {
         // Release lock in background when guard is dropped
-        let client = self.client.clone();
+        let mut conn = self.client.clone();
         let key = self.lock_key.clone();
         let value = self.lock_value.clone();
 
         tokio::spawn(async move {
-            if let Err(e) = DistributedLock::release_lock(&client, &key, &value).await {
+            if let Err(e) = DistributedLock::release_lock(&mut conn, &key, &value).await {
                 warn!("Failed to release lock on drop: {:?}", e);
             }
         });

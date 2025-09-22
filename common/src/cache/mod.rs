@@ -1,14 +1,13 @@
 pub mod distributed_lock;
 
 use anyhow::{Context, Result};
-use redis::Client;
-use std::sync::Arc;
+use redis::{Client, aio::ConnectionManager};
 
 pub use distributed_lock::DistributedLockGuard;
 
 /// Cache manager that provides Redis client and distributed lock functionality
 pub struct Cache {
-    redis_client: Arc<Client>,
+    redis_manager: ConnectionManager,
 }
 
 impl Cache {
@@ -29,19 +28,22 @@ impl Cache {
             .query::<String>(&mut conn)
             .with_context(|| "Failed to ping Redis server")?;
 
+        // Wrap the client in an async connection manger
+        let conn = ConnectionManager::new(client).await?;
+
+        redis::cmd("PING")
+            .query_async::<String>(&mut conn.clone())
+            .await
+            .with_context(|| "Failed to ping Redis server with async connection")?;
+
         Ok(Self {
-            redis_client: Arc::new(client),
+            redis_manager: conn,
         })
     }
 
-    /// Get a reference to the Redis client (for immediate, short-term use)
-    pub fn redis_client(&self) -> &Client {
-        &self.redis_client
-    }
-
-    /// Get a cloned Arc of the Redis client (for async operations, multi-threading, or independent lifetime)
-    pub fn redis_client_arc(&self) -> Arc<Client> {
-        Arc::clone(&self.redis_client)
+    /// Get a new redis connection manager
+    pub fn get_connection(&self) -> ConnectionManager {
+        self.redis_manager.clone()
     }
 
     /// Try to acquire a distributed lock with automatic cleanup.
@@ -98,7 +100,7 @@ impl Cache {
         ttl_seconds: u64,
     ) -> Result<Option<distributed_lock::DistributedLockGuard>> {
         distributed_lock::DistributedLockGuard::try_acquire(
-            (*self.redis_client).clone(),
+            self.redis_manager.clone(),
             lock_key,
             lock_value,
             ttl_seconds,
