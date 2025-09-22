@@ -21,7 +21,7 @@ actix-web = "4"
 sea-orm = { version = "1.1.15", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
 anyhow = "1"
 thiserror = "2"
-cfgloader_rs = "1.0.0"
+cfgloader_rs = "1.0.1"
 tokio-cron-scheduler = "0.14.0"
 tokio = {version = "1", features = ["full"]}
 chrono = { version = "0.4", features = ["serde"] }

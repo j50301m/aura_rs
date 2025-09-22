@@ -1,5 +1,4 @@
 - rabbitmq
 - tracing
 - opentelemetry
-- cibfig_rs need to support current directory
 - drawing service publish to mq

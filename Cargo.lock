@@ -741,18 +741,18 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "cfgloader-core"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ef902b3f749ecbb61278dfd230c6d339675dbc92f1242cccc3724c0c92dd497"
+checksum = "f2fc7724fd4d3e747b83d7c49abb6aef5a6d3a54af5ddc71673a6ae07630e32f"
 dependencies = [
  "dotenvy",
 ]
 
 [[package]]
 name = "cfgloader_rs"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ff8d2320b089a9cc2f169286639913ec3e23b0363a2f1fab4a5187ec39aff49"
+checksum = "999e7f296e562e54be794ff3653e4887648cf81e0298d695e9819b9b8fc35bf3"
 dependencies = [
  "cfgloader-core",
  "cfgloader_rs_macros",
@@ -760,9 +760,9 @@ dependencies = [
 
 [[package]]
 name = "cfgloader_rs_macros"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcc98ae8866c93de9bcb126064779256a5c5263b7d26184281f3bc4dbcb257d4"
+checksum = "0c55199ee2fffa2ccfa16c067cf6a4aa17387d9fe1a3088eab20aa3dfd58b72b"
 dependencies = [
  "cfgloader-core",
  "proc-macro2",

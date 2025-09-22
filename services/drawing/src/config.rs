@@ -11,7 +11,7 @@ pub struct Config {
 
 #[derive(FromEnv)]
 pub struct Db {
-    #[env("DB_URL")]
+    #[env("DB_URL", required)]
     pub db_url: String,
     #[env("DB_SCHEMA", default = "public")]
     pub db_schema: String,
@@ -31,7 +31,8 @@ pub struct Db {
 
 impl Config {
     pub fn new() -> Self {
-        Config::load(&path::PathBuf::from("services/drawing/.env"))
-            .expect("Failed to load config from env")
+        let current_path = path::PathBuf::from(".env");
+        let workspace_path = path::PathBuf::from("services/drawing/.env");
+        Config::load_iter(vec![current_path, workspace_path]).expect("Failed to load configuration")
     }
 }
