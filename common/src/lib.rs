@@ -1,3 +1,4 @@
+pub mod broker;
 pub mod cache;
 pub mod db;
 pub mod entity;
