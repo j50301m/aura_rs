@@ -60,19 +60,19 @@ impl PooledConnection {
         let now = std::time::Instant::now();
 
         // Check max lifetime
-        if let Some(max_lifetime) = config.max_lifetime {
-            if now.duration_since(self.created_at) > max_lifetime {
-                debug!("Connection expired due to max lifetime");
-                return true;
-            }
+        if let Some(max_lifetime) = config.max_lifetime
+            && now.duration_since(self.created_at) > max_lifetime
+        {
+            debug!("Connection expired due to max lifetime");
+            return true;
         }
 
         // Check idle timeout
-        if let Some(idle_timeout) = config.idle_timeout {
-            if now.duration_since(self.last_used) > idle_timeout {
-                debug!("Connection expired due to idle timeout");
-                return true;
-            }
+        if let Some(idle_timeout) = config.idle_timeout
+            && now.duration_since(self.last_used) > idle_timeout
+        {
+            debug!("Connection expired due to idle timeout");
+            return true;
         }
 
         false

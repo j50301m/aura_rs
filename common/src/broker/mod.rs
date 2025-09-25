@@ -1,6 +1,9 @@
 mod core;
 mod initializer;
 
+pub use amqprs::connection::OpenConnectionArguments;
+pub use initializer::Broker;
+
 // Define constants for exchange names
 const DIRECT_EXCHANGE: &str = "aura_rs.exchange.direct";
 const FANOUT_EXCHANGE: &str = "aura_rs.exchange.fanout";

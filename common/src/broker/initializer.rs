@@ -1,4 +1,4 @@
-use amqprs::{channel::Channel, connection::Connection};
+use amqprs::channel::Channel;
 
 use super::core::*;
 use anyhow::Result;
@@ -6,11 +6,11 @@ use anyhow::Result;
 /// Re-export commonly used types
 pub use amqprs::connection::OpenConnectionArguments;
 
-pub struct BrokerImpl {
+pub struct Broker {
     pool: ConnectionPool,
 }
 
-impl BrokerImpl {
+impl Broker {
     pub async fn new(args: OpenConnectionArguments) -> Result<Self> {
         let pool = ConnectionPool::new(args, PoolConfig::default()).await?;
         let broker = Self { pool };

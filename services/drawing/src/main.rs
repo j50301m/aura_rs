@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use common::cache;
+use serde_json::de;
 
 mod config;
 mod turbo_corn;
@@ -30,6 +31,16 @@ async fn main() {
             .await
             .expect("Failed to connect to Redis"),
     );
+
+    // TODO: Use trait object for broker
+    let _broker = common::broker::Broker::new(common::broker::OpenConnectionArguments::new(
+        &cfg.rabbitmq.host,
+        cfg.rabbitmq.port,
+        &cfg.rabbitmq.username,
+        &cfg.rabbitmq.password,
+    ))
+    .await
+    .expect("Failed to connect to RabbitMQ");
 
     // Create and start scheduler
     let scheduler = turbo_corn::Scheduler::new(db, cache);

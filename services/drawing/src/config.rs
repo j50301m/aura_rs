@@ -7,6 +7,7 @@ pub struct Config {
     pub db: Db,
     #[env("REDIS_URL", default = "redis://localhost:30079")]
     pub redis_url: String,
+    pub rabbitmq: RabbitMq,
 }
 
 #[derive(FromEnv)]
@@ -27,6 +28,20 @@ pub struct Db {
     pub db_max_lifetime: u64,
     #[env("DB_LOGGING", default = "false")]
     pub db_logging: bool,
+}
+
+#[derive(FromEnv)]
+pub struct RabbitMq {
+    #[env("RABBITMQ_HOST", default = "localhost")]
+    pub host: String,
+    #[env("RABBITMQ_PORT", default = "5672")]
+    pub port: u16,
+    #[env("RABBITMQ_USERNAME", default = "guest")]
+    pub username: String,
+    #[env("RABBITMQ_PASSWORD", default = "guest")]
+    pub password: String,
+    #[env("RABBITMQ_VHOST", default = "/")]
+    pub vhost: String,
 }
 
 impl Config {
