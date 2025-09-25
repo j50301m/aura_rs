@@ -1,29 +1,25 @@
-use amqprs::{
-    channel::{Channel, ExchangeDeclareArguments, ExchangeType},
-    connection::Connection,
-};
+use amqprs::{channel::Channel, connection::Connection};
 
-use super::internal::*;
+use super::core::*;
 use anyhow::Result;
 
 /// Re-export commonly used types
 pub use amqprs::connection::OpenConnectionArguments;
 
 pub struct BrokerImpl {
-    connection: Connection,
+    pool: ConnectionPool,
 }
 
 impl BrokerImpl {
     pub async fn new(args: OpenConnectionArguments) -> Result<Self> {
-        let connection = Connection::open(&args).await?;
-
-        let broker = Self { connection };
+        let pool = ConnectionPool::new(args, PoolConfig::default()).await?;
+        let broker = Self { pool };
         broker.init().await?;
         Ok(broker)
     }
 
     async fn init(&self) -> Result<()> {
-        let channel = self.connection.open_channel(None).await?;
+        let channel = self.pool.get_channel().await?;
 
         // Declare exchanges
         for exchange in super::get_exchanges() {
