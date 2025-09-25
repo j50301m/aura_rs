@@ -1,5 +1,6 @@
 mod initializer;
 mod internal;
+mod pool;
 
 // Define constants for exchange names
 const DIRECT_EXCHANGE: &str = "aura_rs.exchange.direct";
@@ -7,7 +8,7 @@ const FANOUT_EXCHANGE: &str = "aura_rs.exchange.fanout";
 
 // Define constants for queues
 const TURBO_TOGEL_SETTLE_QUEUE: &str = "aura_rs.turbo_togel_settle";
-const TURBO_TOGEL_DRAWING_RESULT_QUEUE: &str = "aura_rs.turbo_togel_drawing_result"; // 這個 queue 是用來接收 drawing開獎後的任務的
+const TURBO_TOGEL_DRAWING_RESULT_QUEUE: &str = "aura_rs.turbo_togel_drawing_result"; // This queue is used to receive drawing result tasks
 
 // Define constants for routing keys
 const TURBO_TOGEL_SETTLE_QUEUE_ROUTING_KEY: &str = "aura_rs.turbo_togel_settle.key";
