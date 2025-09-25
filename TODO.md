@@ -1,4 +1,7 @@
 - rabbitmq
+    - pool branch mark
+    - impl consumer
+    - impl bocker.publish
 - tracing
 - opentelemetry
 - drawing service publish to mq
