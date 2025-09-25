@@ -11,7 +11,6 @@ use tracing::{debug, error, info, warn};
 pub struct PoolConfig {
     pub max_connections: usize,
     pub min_connections: usize,
-    pub connection_timeout: std::time::Duration,
     pub idle_timeout: Option<std::time::Duration>,
     pub max_lifetime: Option<std::time::Duration>,
     pub health_check_on_acquire: bool,
@@ -24,12 +23,11 @@ impl Default for PoolConfig {
         Self {
             max_connections: 10,
             min_connections: 1,
-            connection_timeout: std::time::Duration::from_secs(30),
             idle_timeout: Some(std::time::Duration::from_secs(600)), // 10 minutes
             max_lifetime: Some(std::time::Duration::from_secs(1800)), // 30 minutes
             health_check_on_acquire: true,
             maintain_min_connections: true,
-            maintenance_interval: std::time::Duration::from_secs(30), // 1 minute
+            maintenance_interval: std::time::Duration::from_secs(30), // 30 seconds
         }
     }
 }
@@ -446,7 +444,6 @@ mod tests {
         let config = PoolConfig {
             max_connections: 3,
             min_connections: 1,
-            connection_timeout: Duration::from_secs(1),
             idle_timeout: Some(Duration::from_secs(10)),
             max_lifetime: Some(Duration::from_secs(30)),
             health_check_on_acquire: true,
