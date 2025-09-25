@@ -454,6 +454,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_pool_creation_and_stats() -> Result<()> {
         let pool = create_test_pool().await?;
         let stats = pool.stats();
@@ -466,6 +467,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_get_and_return_connection() -> Result<()> {
         let pool = create_test_pool().await?;
 
@@ -489,6 +491,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_channel_health_check() -> Result<()> {
         let pool = create_test_pool().await?;
         let chan_guard = pool.get_channel().await?;
@@ -500,6 +503,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_pool_shutdown() -> Result<()> {
         let pool = create_test_pool().await?;
 
@@ -517,6 +521,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_maintain_min_connections() -> Result<()> {
         let config = PoolConfig {
             max_connections: 5,
@@ -538,6 +543,7 @@ mod tests {
 
     // Other tests remain unchanged...
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_multiple_connections() -> Result<()> {
         let pool = create_test_pool().await?;
 
@@ -571,6 +577,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running RabbitMQ server"]
     async fn test_maintainer_refills_connections() -> Result<()> {
         let config = PoolConfig {
             max_connections: 5,
